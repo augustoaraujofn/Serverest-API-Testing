@@ -1,0 +1,900 @@
+{
+  "info": {
+    "_postman_id": "9da4b103-250b-4245-a259-17aa00cb1455",
+    "name": "Serverest API Testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58178351",
+    "_collection_link": "https://go.postman.co/collection/58178351-9da4b103-250b-4245-a259-17aa00cb1455?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "item": [
+        {
+          "name": "Realizar login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta deve conter token de autorização', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('authorization');",
+                  "    pm.expect(data.authorization).to.be.a('string').and.not.empty;",
+                  "    const token = data.authorization.replace(/^Bearer\\s+/i, '');",
+                  "    pm.expect(token).to.not.be.empty;",
+                  "    pm.collectionVariables.set('user_token', token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "Criar Usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Usuário deve ser criado e retornar um ID', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('_id');",
+                  "    pm.expect(data._id).to.be.a('string').and.not.empty;",
+                  "    pm.collectionVariables.set('user_id_created', data._id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{user_name}}\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"administrador\": \"true\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/usuarios",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar usuário por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta deve corresponder ao usuário consultado', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('_id', pm.collectionVariables.get('user_id_created'));",
+                  "    pm.expect(data).to.have.property('email');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/usuarios/{{user_id_created}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{user_id_created}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('API deve confirmar a exclusão do usuário', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "    pm.expect(data.message).to.include('sucesso');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/usuarios/{{user_id_created}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{user_id_created}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar todos os usuários",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {\n    pm.response.to.have.status(200);\n});\n\npm.test('Resposta deve conter uma lista de usuários', function () {\n    const data = pm.response.json();\n    pm.expect(data).to.have.property('usuarios');\n    pm.expect(data.usuarios).to.be.an('array');\n});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/usuarios",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Editar usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('API deve confirmar a atualização do usuário', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "    pm.expect(data.message).to.include('sucesso');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{updated_user_name}}\",\n  \"email\": \"{{updated_user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"administrador\": \"true\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/usuarios/{{user_id_created}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{user_id_created}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Produtos",
+      "item": [
+        {
+          "name": "Buscar todos os produtos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta deve conter uma lista de produtos', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('produtos');",
+                  "    pm.expect(data.produtos).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/produtos",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "produtos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar produtos por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Produto retornado deve possuir identificador', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('_id');",
+                  "    pm.expect(data._id).to.eql(pm.collectionVariables.get('product_id'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/produtos/{{product_id}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "produtos",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar produto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Produto deve ser criado e retornar um ID', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('_id');",
+                  "    pm.expect(data._id).to.be.a('string').and.not.empty;",
+                  "    pm.collectionVariables.set('product_id', data._id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{product_name}}\",\n  \"preco\": 1000,\n  \"descricao\": \"{{product_description}}\",\n  \"quantidade\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/produtos",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "produtos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Editar produto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('API deve confirmar a atualização do produto', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "    pm.expect(data.message).to.include('sucesso');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{updated_product_name}}\",\n  \"preco\": 1200,\n  \"descricao\": \"{{product_description}}\",\n  \"quantidade\": 15\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/produtos/{{product_id}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "produtos",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir produto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('API deve confirmar a exclusão do produto', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "    pm.expect(data.message).to.include('sucesso');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/produtos/{{product_id}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "produtos",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Carrinho",
+      "item": [
+        {
+          "name": "Listar carrinhos cadastrados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta deve conter uma lista de carrinhos', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('carrinhos');",
+                  "    pm.expect(data.carrinhos).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/carrinhos",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "carrinhos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar carrinhos por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Carrinho retornado deve possuir identificador', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('_id', pm.collectionVariables.get('cart_id'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/carrinhos/{{cart_id}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "carrinhos",
+                "{{cart_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cadastrar carrinho",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Carrinho deve ser criado e retornar um ID', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('_id');",
+                  "    pm.expect(data._id).to.be.a('string').and.not.empty;",
+                  "    pm.collectionVariables.set('cart_id', data._id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtos\": [\n    {\n      \"idProduto\": \"{{product_id}}\",\n      \"quantidade\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/carrinhos",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "carrinhos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Concluir compra",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('API deve confirmar a conclusão da compra', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "    pm.expect(data.message).to.include('sucesso');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/carrinhos/concluir-compra",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "carrinhos",
+                "concluir-compra"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar compra e retornar produtos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code deve ser 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('API deve confirmar o cancelamento da compra', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "    pm.expect(data.message).to.include('sucesso');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/carrinhos/cancelar-compra",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "carrinhos",
+                "cancelar-compra"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "https://serverest.dev"
+    },
+    {
+      "key": "user_name",
+      "value": "Nome para teste"
+    },
+    {
+      "key": "user_email",
+      "value": "seu-email-unico@example.com"
+    },
+    {
+      "key": "user_password",
+      "value": "DefinaUmaSenhaDeTeste"
+    },
+    {
+      "key": "updated_user_name",
+      "value": "Nome atualizado"
+    },
+    {
+      "key": "updated_user_email",
+      "value": "seu-email-atualizado@example.com"
+    },
+    {
+      "key": "user_token",
+      "secret": true
+    },
+    {
+      "key": "user_id_created",
+      "value": ""
+    },
+    {
+      "key": "product_name",
+      "value": "Produto de teste"
+    },
+    {
+      "key": "updated_product_name",
+      "value": "Produto atualizado"
+    },
+    {
+      "key": "product_description",
+      "value": "Produto criado para testes de API"
+    },
+    {
+      "key": "product_id",
+      "value": ""
+    },
+    {
+      "key": "cart_id",
+      "value": ""
+    }
+  ]
+}
